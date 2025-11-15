@@ -67,3 +67,37 @@ The frontend is a modern, single-page application built with:
 -   **No Build Step**: Uses Babel Standalone to transpile TSX/JSX in the browser, simplifying setup.
 
 All communication with the backend is handled through a REST API, with functions neatly organized in `services/apiService.ts`.
+
+### Steps to Run the Application
+
+To run the Intelligent RAG Assistant, the following prerequisites are required:
+
+-   `npm` and `Node.js`
+-   `Python 3.12` or higher
+-   `UV`
+
+---
+
+#### Backend Setup:
+
+1.  Navigate to the `backend` directory.
+2.  Run the following commands in your terminal:
+    ```bash
+    uv sync
+    ```
+    ```bash
+    uv run app.py
+    ```
+
+---
+
+#### Frontend Setup:
+
+1.  Navigate to the `frontend` directory.
+2.  Run the following commands in your terminal:
+    ```bash
+    npm install
+    ```
+    ```bash
+    npm run dev
+    ```
