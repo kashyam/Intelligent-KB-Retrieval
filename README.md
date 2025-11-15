@@ -2,7 +2,7 @@
 
 [![Checkout the demo](https://raw.githubusercontent.com/kashyam/Intelligent-KB-Retrieval/main/KB_thumbnail.png)](https://player.vimeo.com/video/1137309727)
 
-
+Checkout the demo - https://player.vimeo.com/video/1137309727
 
 This is an advanced AI-powered assistant designed to provide accurate, context-aware answers from a private knowledge base of PDF documents. It leverages a Retrieval-Augmented Generation (RAG) architecture to ensure responses are grounded in the provided source material, complete with citations for verification.
 
