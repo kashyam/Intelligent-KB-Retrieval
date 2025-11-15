@@ -1,7 +1,7 @@
 import { KnowledgeBase, Settings, Citation } from '../types';
 
 // IMPORTANT: For local development, use your local backend server's URL.
-const API_BASE_URL = 'http://localhost:8000/rag/api'; // Use this for local development
+const API_BASE_URL = 'http://localhost:8002/api'; // Use this for local development
 
 // Helper to transform API's snake_case KB to our camelCase KnowledgeBase
 const transformApiKbToState = (apiKb: any): KnowledgeBase => {
