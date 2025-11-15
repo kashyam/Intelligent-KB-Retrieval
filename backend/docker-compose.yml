@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  app-service:
+    # Use the image you built from your Dockerfile (using "docker build -t my-uv-app .")
+    image: rag2
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8002:8002"
+    volumes:
+      # Mount the named volume 'app-data' to the container's working directory '/app'
+      - type: volume
+        source: app-data
+        target: /app
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+              count: all # or specify a number, e.g., 1
+
+# Define the top-level named volume
+volumes:
+  # This makes the 'app-data' volume managed by Docker
+  app-data:

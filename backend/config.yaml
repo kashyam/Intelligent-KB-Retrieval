@@ -1,0 +1,61 @@
+azure:
+  openai:
+    api_base: 
+    api_key: 
+    api_version: 
+
+    llm:
+      deployment_name: 
+      model: 
+      temperature: 0.2
+      max_tokens: 4096
+      version: "2025-01-01-preview"
+      prompt: "You are a helpful AI assistant. Your response must be in Markdown. \
+              When presenting data, comparisons, or any structured information, format it as a table. \
+              Ensure your answer is clear, concise, and well-structured. \
+              If the answer is not in the context, say you do not know. Do not make up an answer."
+
+    embedding:
+      api_version: 
+      endpoint: 
+      api_key: 
+      deployment_name: 
+      model: 
+      provider: "azure"
+      chunk_size: 1024
+      chunk_overlap: 80
+
+vector_db:
+  provider: "qdrant"
+  storage_path: "./data/qdrant"
+  collection_name: "rag_elements"
+  distance: "Cosine"
+  top_k: 5
+
+bm25:
+  enabled: true
+  storage_path: "./data/bm25_index.pkl"
+
+retrieval:
+  mode: "hybrid"      # similarity, semantic, hybrid
+  concurrent: true
+  weights:
+    dense: 0.6
+    sparse: 0.4
+  top_k: 5
+  multi_document: true
+
+docling:
+  gpu_enabled: true
+  device: "cuda:0"
+  parse_images: true
+  output_markdown: true
+  output_json: true
+
+feedback:
+  enabled: true
+  store_path: "data/feedback.json"
+
+logging:
+  level: "INFO"
+  log_file: "logs/app.log"
