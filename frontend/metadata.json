@@ -1,0 +1,5 @@
+{
+  "name": "Intelligent RAG Assistant",
+  "description": "An AI-powered assistant that answers questions based on a knowledge base of uploaded PDF documents. Features include knowledge base management, file uploads, and a conversational chat interface with citations.",
+  "requestFramePermissions": []
+}
