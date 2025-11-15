@@ -1,3 +1,5 @@
+![Screen cast of the Application](https://raw.githubusercontent.com/kashyam/Intelligent-KB-Retrieval/main/KB_thumbnail.png)
+
 # Intelligent RAG Assistant
 
 This is an advanced AI-powered assistant designed to provide accurate, context-aware answers from a private knowledge base of PDF documents. It leverages a Retrieval-Augmented Generation (RAG) architecture to ensure responses are grounded in the provided source material, complete with citations for verification.
