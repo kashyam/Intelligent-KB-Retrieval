@@ -2,7 +2,10 @@
 
 [![Checkout the demo](https://raw.githubusercontent.com/kashyam/Intelligent-KB-Retrieval/main/KB_thumbnail.png)](https://player.vimeo.com/video/1137309727)
 
-Checkout the demo - https://player.vimeo.com/video/1137309727
+## Experience the Assistant in action 
+Demo - [Knowledge Chat Assistant](https://player.vimeo.com/video/1137309727)
+
+Demo - [Knowledge Voice Assistant](https://player.vimeo.com/video/1145109851)
 
 This is an advanced AI-powered assistant designed to provide accurate, context-aware answers from a private knowledge base of PDF documents. It leverages a Retrieval-Augmented Generation (RAG) architecture to ensure responses are grounded in the provided source material, complete with citations for verification.
 
@@ -57,6 +60,65 @@ When a user submits a query, the same Azure embedding model converts the query i
 The retrieved chunks are assembled into a context block. This context, along with the original user query, is formatted into a precise prompt. This final prompt is sent to a powerful generative model hosted on **Azure, such as a GPT-4 or GPT-5 series model**. The model is instructed to synthesize an answer based strictly on the provided context. This crucial step prevents the model from "hallucinating" or using outside knowledge, ensuring the answers are verifiable and directly tied to the source documents. The backend then streams this answer back to the frontend, along with the source chunks used for citation.
 
 ---
+
+
+Here is the architecture and flow documentation formatted as a clean, ready-to-use Markdown section for your GitHub README.
+
+***
+
+## 🎙️ Voice Mode Architecture
+
+The Voice Mode of the Intelligent RAG Assistant transforms static document interaction into a fluid, conversational experience. It enables low-latency, full-duplex communication using a dedicated Realtime WebSocket architecture.
+
+### 🔑 Key Features
+
+*   **⚡ Real-time Conversation:** Achieves sub-second latency using WebSocket streams for a natural, human-like flow.
+*   **📚 Contextual RAG:** Dynamically accesses the vector database to ground spoken responses in document content via Function Calling.
+*   **🛑 Barge-in Support:** Full-duplex audio allows users to interrupt the AI naturally; the system stops speaking immediately when the user begins.
+*   **📄 Conversation Summaries:** Automatically generates a PDF transcript and summary upon session completion.
+*   **🌊 Visual Feedback:** Provides real-time audio visualization to indicate active listening and speaking states.
+
+---
+
+### 🔄 High-Level Voice Data Flow
+
+The following details the lifecycle of a voice session, corresponding to the internal sequence of events between the User, Frontend, Backend, and Azure OpenAI.
+
+#### 1. Session Initialization
+*   **Connection:** The **Frontend** initiates a persistent WebSocket connection to the **Backend** at `/api/ws/voice/{kb_id}`.
+*   **Upstream Connection:** The **Backend** acts as a secure bridge, establishing a connection to the **Azure OpenAI Realtime API**.
+*   **Tool Injection:** During the session handshake, the backend defines available tools (specifically `query_knowledge_base`), enabling the model to know it has access to external document data.
+
+#### 2. The Conversation Loop (Input)
+*   **Audio Capture:** The user speaks into the microphone.
+*   **Streaming:** The **Frontend** streams raw audio (Base64 PCM16) to the **Backend**, which immediately forwards the input audio buffer to **Azure**.
+*   **Processing:** Azure performs on-device Voice Activity Detection (VAD) to determine when the user has finished a sentence, followed by model inference.
+
+#### 3. Contextual RAG (The Decision Logic)
+If the model determines the user's query requires specific facts from the uploaded documents:
+1.  **Intent Recognition:** Azure pauses response generation and emits a `function_call` event (asking to `query_knowledge_base`).
+2.  **Vector Search:** The **Backend** intercepts this event, executes a semantic search against the **Vector DB (FAISS)**, and retrieves relevant chunks.
+3.  **Grounding Event:** The backend sends a `grounding` event to the Frontend to display citations visually.
+4.  **Context Injection:** The backend pushes the retrieved text back to Azure as the `function_call_output`.
+
+#### 4. Response Synthesis (Output)
+*   **Generation:** The model uses the injected context to synthesize a factual spoken response (e.g., *"According to the document..."*).
+*   **Audio Playback:** Azure streams the generated audio delta (TTS) to the **Backend**, which relays it to the **Frontend**.
+*   **User Experience:** The frontend plays the audio stream immediately, maintaining a low-latency conversational feel.
+
+---
+
+### 🧠 How Contextual Knowledge Works (Under the Hood)
+
+The voice assistant bridges the gap between LLM capabilities and your private data using **Tool Use (Function Calling)**:
+
+| Step | Description |
+| :--- | :--- |
+| **1. Tool Definition** | On session start, the backend tells the model: *"If you need facts, use the `query_knowledge_base` tool."* |
+| **2. Intent** | When you ask, *"What was the revenue in Q3?"*, the model detects it cannot answer from training data alone and triggers the tool. |
+| **3. Execution** | The backend performs the vector search invisible to the user. |
+| **4. Injection** | The specific context is fed back into the model's context. |
+| **5. Synthesis** | The model generates the answer using the provided facts, ensuring accuracy and reducing hallucinations. |
 
 ## Frontend Overview
 
