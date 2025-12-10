@@ -29,3 +29,10 @@ export interface Settings {
     temperature: number;
     maxTokens: number;
 }
+
+export interface VoiceSettings {
+    voiceName: string;
+    agentTone: string;
+    speakingRate: string;
+    emotionStyle: string;
+}

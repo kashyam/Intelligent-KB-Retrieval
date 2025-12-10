@@ -1,4 +1,5 @@
 
+
 import React, { useState, useCallback, useEffect } from 'react';
 import { Sidebar } from './components/Sidebar';
 import { ChatSection } from './components/ChatSection';
@@ -12,7 +13,7 @@ import { LoginPage } from './components/LoginPage';
 const INITIAL_MESSAGE: Message = {
     id: Date.now(),
     role: 'assistant',
-    content: "Welcome! I'm your Knowledge Assistant. Please select a knowledge base from the right panel to get started, or create a new one.",
+    content: "Welcome! I'm your Knowledge Assistant. Please select a knowledge base from the right panel to get started, or you can start chatting in General Mode immediately.",
     timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
 };
 
@@ -143,11 +144,7 @@ const App: React.FC = () => {
     }, [selectedKb]);
 
     const handleSendMessage = async (text: string) => {
-        if (isGenerating || !text.trim() || !selectedKb) {
-             if(!selectedKb) {
-                const errorMsg: Message = { id: Date.now() + 1, role: 'assistant', content: "❌ No knowledge base loaded. Please select one first.", timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) };
-                setMessages(prev => [...prev, errorMsg]);
-             }
+        if (isGenerating || !text.trim()) {
              return;
         }
 
@@ -157,7 +154,9 @@ const App: React.FC = () => {
         const startTime = performance.now();
 
         try {
-            const response = await apiService.sendMessage(selectedKb.id, text, settings);
+            // Use 'default' if no KB is selected to trigger General Chat
+            const kbId = selectedKb ? selectedKb.id : 'default';
+            const response = await apiService.sendMessage(kbId, text, settings);
             const endTime = performance.now();
             const responseTime = (endTime - startTime) / 1000;
             
@@ -197,7 +196,12 @@ const App: React.FC = () => {
                 timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
             }]);
         } else {
-            setMessages([INITIAL_MESSAGE]);
+            setMessages([{
+                id: Date.now(),
+                role: 'assistant',
+                content: "General Chat Mode. How can I assist you today?",
+                timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            }]);
         }
     }, [selectedKb]);
     
@@ -234,6 +238,8 @@ const App: React.FC = () => {
                         isGenerating={isGenerating}
                         onSendMessage={handleSendMessage}
                         onClearChat={handleClearChat}
+                        selectedKb={selectedKb}
+                        settings={settings}
                     />
                 </div>
                 <div className="w-[360px] border-l border-gray-200 bg-gray-50/70 shrink-0">

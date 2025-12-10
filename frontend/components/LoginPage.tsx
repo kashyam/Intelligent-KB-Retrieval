@@ -1,7 +1,8 @@
+
 import React, { useState, useEffect } from 'react';
 
 interface LoginPageProps {
-    onLogin: () => void;
+    onLogin: (username: string) => void;
 }
 
 export const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
@@ -11,8 +12,8 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
     const [isConfigured, setIsConfigured] = useState(false);
 
     // Read credentials from environment variables.
-        const validUsername = process.env.USERNAME || 'admin';
-        const validPassword = process.env.PASSWORD || '!!Passwd1234';
+    const validUsername = process.env.USERNAME || 'admin';
+    const validPassword = process.env.PASSWORD || '!!Passwd1234';
     
     useEffect(() => {
         // Check if credentials are provided in the environment.
@@ -33,7 +34,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
 
         if (username === validUsername && password === validPassword) {
             setError('');
-            onLogin();
+            onLogin(username);
         } else {
             setError('Invalid username or password');
         }

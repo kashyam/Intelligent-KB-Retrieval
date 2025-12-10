@@ -1,0 +1,57 @@
+azure:
+  openai:
+    api_base: "https://eu2azeoai25.openai.azure.com/"
+    api_key: "74G3VMybVVLeiHSpXsCGOYfQzgUpFvZ88k9imFcXrq2gEbVfRvTpJQQJ99BEACHYHv6XJ3w3AAABACOGo1b5"
+    api_version: "2025-01-01-preview"
+
+    llm:
+      deployment_name: "gpt-5"
+      model: "gpt-5"
+      temperature: 0.2
+      max_tokens: 4096
+      version: "2025-01-01-preview"
+
+    embedding:
+      api_version: "2023-05-15"
+      endpoint: "https://eu2azeoai25.openai.azure.com/openai/deployments/text-embedding-3-large/embeddings?api-version=2023-05-15"
+      api_key: "74G3VMybVVLeiHSpXsCGOYfQzgUpFvZ88k9imFcXrq2gEbVfRvTpJQQJ99BEACHYHv6XJ3w3AAABACOGo1b5"
+      deployment_name: "text-embedding-3-large"
+      model: "text-embedding-3-large"
+      provider: "azure"
+      chunk_size: 1024
+      chunk_overlap: 80
+
+vector_db:
+  provider: "qdrant"
+  storage_path: "./data/qdrant"
+  collection_name: "rag_elements"
+  distance: "Cosine"
+  top_k: 5
+
+bm25:
+  enabled: true
+  storage_path: "./data/bm25_index.pkl"
+
+retrieval:
+  mode: "hybrid"      # similarity, semantic, hybrid
+  concurrent: true
+  weights:
+    dense: 0.6
+    sparse: 0.4
+  top_k: 5
+  multi_document: true
+
+docling:
+  gpu_enabled: true
+  device: "cuda:0"
+  parse_images: true
+  output_markdown: true
+  output_json: true
+
+feedback:
+  enabled: true
+  store_path: "data/feedback.json"
+
+logging:
+  level: "INFO"
+  log_file: "logs/app.log"
