@@ -1,7 +1,32 @@
+
 import { KnowledgeBase, Settings, Citation } from '../types';
 
 // IMPORTANT: For local development, use your local backend server's URL.
-const API_BASE_URL = 'http://localhost:8002/api'; // Use this for local development
+// const API_BASE_URL = 'http://localhost:8000/rag/api'; // Use this for local development if your router is mounted at /rag
+// If running locally with uvicorn directly on port 8002:
+// const API_BASE_URL = 'http://localhost:8003/api';
+const API_BASE_URL = 'https://cognitiveservices.robility.ai/rag/api'; // Original production URL
+
+export const getVoiceWebSocketUrl = (kbId: string | null): string => {
+    // Construct WS URL from API_BASE_URL.
+    // The backend expects: /ws/voice/{kb_id} mounted under the API router.
+    
+    const urlObj = new URL(API_BASE_URL);
+    const protocol = urlObj.protocol === 'https:' ? 'wss:' : 'ws:';
+    
+    // We do NOT strip '/api' anymore, assuming the WS endpoint is mounted within the API router
+    // e.g., https://host/rag/api -> https://host/rag/api/ws/voice/...
+    let basePath = urlObj.pathname.replace(/\/$/, '');
+    
+    // If kbId is null, send 'default' to indicate a general session
+    const routeId = kbId || 'default';
+
+    // Result: wss://host/rag/api/ws/voice/{routeId}
+    // FIX: Added encodeURIComponent to handle KB names with spaces/special chars
+    const wsUrl = `${protocol}//${urlObj.host}${basePath}/ws/voice/${encodeURIComponent(routeId)}`;
+    console.log("Connecting to Voice WebSocket:", wsUrl);
+    return wsUrl;
+};
 
 // Helper to transform API's snake_case KB to our camelCase KnowledgeBase
 const transformApiKbToState = (apiKb: any): KnowledgeBase => {
@@ -46,7 +71,8 @@ export async function getKnowledgeBases(): Promise<KnowledgeBase[]> {
 }
 
 export async function getKnowledgeBase(id: string): Promise<KnowledgeBase> {
-    const response = await fetch(`${API_BASE_URL}/kbs/${id}`, {
+    // FIX: Added encodeURIComponent
+    const response = await fetch(`${API_BASE_URL}/kbs/${encodeURIComponent(id)}`, {
         headers: {
             'Accept': 'application/json',
         },
@@ -69,7 +95,8 @@ export async function createKnowledgeBase(name: string): Promise<KnowledgeBase> 
 }
 
 export async function deleteKnowledgeBase(kbId: string): Promise<{ message: string }> {
-    const response = await fetch(`${API_BASE_URL}/kbs/${kbId}`, {
+    // FIX: Added encodeURIComponent
+    const response = await fetch(`${API_BASE_URL}/kbs/${encodeURIComponent(kbId)}`, {
         method: 'DELETE',
         headers: {
             'Accept': 'application/json',
@@ -83,7 +110,8 @@ export async function uploadFile(kbId: string, file: File): Promise<KnowledgeBas
     const formData = new FormData();
     formData.append('file', file);
 
-    const response = await fetch(`${API_BASE_URL}/kbs/${kbId}/upload`, {
+    // FIX: Added encodeURIComponent
+    const response = await fetch(`${API_BASE_URL}/kbs/${encodeURIComponent(kbId)}/upload`, {
         method: 'POST',
         body: formData,
     });
@@ -97,7 +125,8 @@ interface ChatResponse {
 }
 
 export async function sendMessage(kbId: string, message: string, settings: Settings): Promise<ChatResponse> {
-    const response = await fetch(`${API_BASE_URL}/kbs/${kbId}/chat`, {
+    // FIX: Added encodeURIComponent
+    const response = await fetch(`${API_BASE_URL}/kbs/${encodeURIComponent(kbId)}/chat`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -115,4 +144,28 @@ export async function sendMessage(kbId: string, message: string, settings: Setti
         answer: data.answer,
         citations: data.citations.map(transformApiCitationToState),
     };
+}
+
+export async function downloadVoiceSummary(markdownText: string): Promise<void> {
+    const response = await fetch(`${API_BASE_URL}/voice/export-summary`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ markdown_text: markdownText }),
+    });
+
+    if (!response.ok) {
+        throw new Error('Failed to generate PDF');
+    }
+
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `conversation_summary_${new Date().toISOString().slice(0,10)}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(url);
 }
