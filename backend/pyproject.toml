@@ -24,5 +24,7 @@ dependencies = [
     "easyocr",
     "rapidocr_onnxruntime",
     "onnxruntime",
-    "flash-attn"
+    "websockets",
+    "markdown",
+    "reportlab"
 ]
